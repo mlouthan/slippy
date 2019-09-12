@@ -1,0 +1,2 @@
+# slippy
+Slippy Text Animation
