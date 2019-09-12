@@ -18,10 +18,6 @@ import javafx.util.Duration;
 
 public class VideoPanel extends Stage {
 
-    private static final String SLIPPY_FONT_FILE = "CHMCPixel.ttf";
-
-    private static final String SHORT_SLIPPY_VIDEO = "Slippy_Short_Blue.mp4";
-
     private final Group videoRoot;
 
     private final MediaView shortSlippyVideo;
@@ -33,13 +29,13 @@ public class VideoPanel extends Stage {
 
     public VideoPanel() {
         videoRoot = new Group();
-        shortSlippyVideo = createSlippyVideo(SHORT_SLIPPY_VIDEO);
-        smallSlippyFont = createSlippyFont(31);
-        largeSlippyFont = createSlippyFont(59);
+        shortSlippyVideo = createSlippyVideo(VideoConfig.SHORT_SLIPPY_VIDEO);
+        smallSlippyFont = createSlippyFont(VideoConfig.SMALL_FONT_SIZE);
+        largeSlippyFont = createSlippyFont(VideoConfig.LARGE_FONT_SIZE);
         slippyText = createSlippyTextBox();
 
-        Scene videoScene = new Scene(videoRoot,960,350);
-        videoScene.setFill(Paint.valueOf("#0000FF"));
+        Scene videoScene = new Scene(videoRoot, VideoConfig.VIDEO_WIDTH, VideoConfig.VIDEO_HEIGHT);
+        videoScene.setFill(Paint.valueOf(VideoConfig.SCREEN_COLOR));
         setScene(videoScene);
     }
 
@@ -71,7 +67,7 @@ public class VideoPanel extends Stage {
     private Font createSlippyFont(final int fontSize) {
         try {
             return javafx.scene.text.Font.loadFont(
-                    getClass().getResource(SLIPPY_FONT_FILE).toURI().toString(),
+                    getClass().getResource(VideoConfig.SLIPPY_FONT_FILE).toURI().toString(),
                     fontSize
             );
         } catch (final Exception e) {
@@ -83,30 +79,31 @@ public class VideoPanel extends Stage {
     private Text createSlippyTextBox() {
         Text slippyText = new Text();
         slippyText.setText("");
-        slippyText.setStyle("-fx-fill: white;");
-        slippyText.setLayoutX(260);
-        slippyText.setLayoutY(160);
-        slippyText.setWrappingWidth(650);
+        slippyText.setStyle(VideoConfig.TEXT_STYLE);
+        slippyText.setLayoutX(VideoConfig.TEXT_X);
+        slippyText.setLayoutY(VideoConfig.TEXT_Y);
+        slippyText.setWrappingWidth(VideoConfig.TEXT_WIDTH);
         return slippyText;
     }
 
     private void typeText(final String text, final MediaView mediaView) {
         final IntegerProperty i = new SimpleIntegerProperty(0);
-        final int delayMillis = 50;
         Timeline timeline = new Timeline();
         KeyFrame keyFrame = new KeyFrame(
-                Duration.millis(delayMillis),
+                Duration.millis(VideoConfig.ANIMATION_TIME_DELAY_MILLIS),
                 event -> {
                     boolean textDone = i.get() > text.length();
                     boolean slippyPaused = mediaView.getMediaPlayer().getStatus() == MediaPlayer.Status.PAUSED;
                     if (textDone && slippyPaused) {
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(VideoConfig.TIME_TO_READ_TEXT_MILLIS);
                         } catch(Exception e) {}
                         mediaView.getMediaPlayer().play();
                         slippyText.setText("");
                         timeline.stop();
-                    } else if (!slippyPaused && i.get() * delayMillis > mediaView.getMediaPlayer().getMedia().getDuration().toMillis() - 1300) {
+                    } else if (!slippyPaused &&
+                            i.get() * VideoConfig.ANIMATION_TIME_DELAY_MILLIS >
+                            mediaView.getMediaPlayer().getMedia().getDuration().toMillis() - VideoConfig.VIDEO_OUTRO_MILLIS) {
                         mediaView.getMediaPlayer().pause();
                     } else if (i.get() > text.length()) {
                         //do nothing
@@ -120,7 +117,7 @@ public class VideoPanel extends Stage {
         mediaView.getMediaPlayer().stop();
         mediaView.getMediaPlayer().play();
         try {
-            Thread.sleep(500);
+            Thread.sleep(VideoConfig.VIDEO_INTRO_MILLIS);
         } catch(Exception e) {}
         timeline.play();
     }
