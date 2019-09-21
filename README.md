@@ -1,4 +1,4 @@
-# slippy
+# videotext
 Slippy Text Animation
 
 How to use:
