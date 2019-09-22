@@ -9,4 +9,6 @@ public interface VideoConfig {
     int getVideoOutroMillis();
 
     int getTimeToReadTextMillis();
+
+    int getPageTimeDelayMillis();
 }

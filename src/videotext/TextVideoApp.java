@@ -36,7 +36,7 @@ public class TextVideoApp extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         VideoPanel videoStage = new VideoPanel();
-        videoStage.initStyle(StageStyle.UNDECORATED);
+        videoStage.initStyle(StageStyle.UTILITY);
         videoStage.show();
 
         MenuBar menuBar = createMenuBar(textVideos);
@@ -47,6 +47,8 @@ public class TextVideoApp extends Application {
         primaryStage.initStyle(StageStyle.DECORATED);
         primaryStage.setTitle("What does Slippy say?");
         primaryStage.show();
+
+        primaryStage.setAlwaysOnTop(true);
 
         primaryStage.setOnCloseRequest(event1 -> videoStage.close());
         videoStage.setOnCloseRequest(event1 -> primaryStage.close());

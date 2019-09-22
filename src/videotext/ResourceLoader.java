@@ -3,6 +3,8 @@ package videotext;
 import javafx.scene.media.Media;
 import javafx.scene.text.Font;
 
+// This class exists to load resources from the base path
+// which works for both JARs and intellij
 public class ResourceLoader {
 
     public Media loadMedia(final String file) {
