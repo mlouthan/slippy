@@ -13,10 +13,21 @@ public class VideoPanel extends Stage {
 
     private final Group videoRoot;
 
+    private double xOffset = 0;
+    private double yOffset = 0;
+
     public VideoPanel() {
         videoRoot = new Group();
 
         Scene videoScene = new Scene(videoRoot, Config.VIDEO_WIDTH, Config.VIDEO_HEIGHT);
+        videoScene.setOnMousePressed(ev -> {
+                xOffset = ev.getSceneX();
+                yOffset = ev.getSceneY();
+        });
+        videoScene.setOnMouseDragged(ev -> {
+                setX(ev.getScreenX() - xOffset);
+                setY(ev.getScreenY() - yOffset);
+        });
         videoScene.setFill(Paint.valueOf(Config.SCREEN_COLOR));
         setScene(videoScene);
     }

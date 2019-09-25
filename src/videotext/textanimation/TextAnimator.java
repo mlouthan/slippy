@@ -25,10 +25,8 @@ public class TextAnimator {
     public void animateText(final PagedText textToDisplay) {
         Timeline timeline = createTimeline(textToDisplay);
         mediaPlayer.stop();
+        mediaPlayer.seek(Duration.millis(0));
         mediaPlayer.play();
-        try {
-            Thread.sleep(videoConfig.getVideoIntroMillis());
-        } catch(Exception e) {}
         timeline.play();
     }
 
@@ -37,7 +35,28 @@ public class TextAnimator {
         final IntegerProperty stringPosition = new SimpleIntegerProperty(0);
         final IntegerProperty page = new SimpleIntegerProperty(0);
         final IntegerProperty delay = new SimpleIntegerProperty(0);
-        Timeline timeline = new Timeline();
+        final Timeline timeline = new Timeline();
+
+        final DelayCallback newPageCallback = () -> {
+            text.setText("");
+            page.setValue(page.get() + 1);
+            stringPosition.setValue(0);
+            mediaPlayer.seek(Duration.millis(videoConfig.getSpeakingAnimationTimeMillis()));
+            mediaPlayer.play();
+        };
+        final DelayCallback introCallback = () -> {
+            //do nothing
+        };
+        final DelayCallback outroCallback = () -> {
+            mediaPlayer.play();
+            text.setText("");
+            timeline.stop();
+        };
+        final CallbackHolder callbackHolder = new CallbackHolder();
+
+        delay.setValue(convertDelayFromMillis(videoConfig.getVideoIntroMillis()));
+        callbackHolder.callback = introCallback;
+
         KeyFrame keyFrame = new KeyFrame(
                 Duration.millis(videoConfig.getAnimationTimeDelayMillis()),
                 event -> {
@@ -46,27 +65,22 @@ public class TextAnimator {
                     boolean slippyPaused = mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED;
 
                     if (!slippyPaused &&
-                            counter.get() * videoConfig.getAnimationTimeDelayMillis() >
-                                    mediaPlayer.getMedia().getDuration().toMillis() - videoConfig.getVideoOutroMillis()) {
+                            mediaPlayer.getCurrentTime().toMillis() >=
+                                    mediaPlayer.getTotalDuration().toMillis() - videoConfig.getVideoOutroMillis()) {
                         mediaPlayer.pause();
                     }
-                    
+
                     if (delay.get() > 0) {
                         delay.setValue(delay.get() - 1);
                         if (delay.get() == 0) {
-                            text.setText("");
-                            page.setValue(page.get() + 1);
-                            stringPosition.setValue(0);
+                            callbackHolder.callback.doCallback();
                         }
                     } else if (pageDone && !morePages && slippyPaused) {
-                        try {
-                            Thread.sleep(videoConfig.getTimeToReadTextMillis());
-                        } catch(Exception e) {}
-                        mediaPlayer.play();
-                        text.setText("");
-                        timeline.stop();
+                        delay.setValue(convertDelayFromMillis(videoConfig.getTimeToReadTextMillis()));
+                        callbackHolder.callback = outroCallback;
                     } else if (pageDone && morePages) {
-                        delay.setValue(videoConfig.getPageTimeDelayMillis() / videoConfig.getAnimationTimeDelayMillis());
+                        delay.setValue(convertDelayFromMillis(videoConfig.getPageTimeDelayMillis()));
+                        callbackHolder.callback = newPageCallback;
                     } else if (stringPosition.get() > textToDisplay.length(page.get())) {
                         //do nothing
                     } else {
@@ -80,5 +94,15 @@ public class TextAnimator {
         return timeline;
     }
 
-    //20 character limit for the big font
+    private int convertDelayFromMillis(final int millis) {
+        return millis / videoConfig.getAnimationTimeDelayMillis();
+    }
+
+    private class CallbackHolder {
+
+        public DelayCallback callback = null;
+    }
+    private interface DelayCallback {
+        void doCallback();
+    }
 }

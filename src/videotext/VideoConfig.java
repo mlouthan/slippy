@@ -8,6 +8,8 @@ public interface VideoConfig {
 
     int getVideoOutroMillis();
 
+    int getSpeakingAnimationTimeMillis();
+
     int getTimeToReadTextMillis();
 
     int getPageTimeDelayMillis();
