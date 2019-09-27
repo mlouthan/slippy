@@ -15,6 +15,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import videotext.falco.FalcoTextVideo;
 import videotext.slippy.SlippyTextVideo;
 
 import java.util.Arrays;
@@ -23,25 +24,23 @@ import java.util.List;
 public class TextVideoApp extends Application {
 
     private TextArea slippyTextInput;
+    private Label slippyPrompt;
 
-    public TextArea getSlippyTextInput() {
-        return slippyTextInput;
-    }
-
-    private final List<TextVideo> textVideos = Arrays.asList(new SlippyTextVideo());
+    private final List<TextVideo> textVideos = Arrays.asList(new SlippyTextVideo(), new FalcoTextVideo());
     private TextVideo selectedVideo = null;
     private FrameRate selectedFramerate = null;
+    private VideoPanel videoStage = null;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        VideoPanel videoStage = new VideoPanel();
+        videoStage = new VideoPanel();
         videoStage.initStyle(StageStyle.UNDECORATED);
         videoStage.show();
 
+        Scene inputScene = createSlippyInputScene(videoStage);
         MenuBar menuBar = createMenuBar(textVideos);
 
-        Scene inputScene = createSlippyInputScene(videoStage);
         ((Group)inputScene.getRoot()).getChildren().add(menuBar);
         primaryStage.setScene(inputScene);
         primaryStage.initStyle(StageStyle.DECORATED);
@@ -78,20 +77,19 @@ public class TextVideoApp extends Application {
         return menuBar;
     }
 
-    private void createFramerateMenu(final TextVideo textVideo, final ToggleGroup framerateGroup, final Menu framerateMenu, boolean isSelected) {
+    private void createFramerateMenu(final TextVideo textVideo, final ToggleGroup framerateGroup,
+                                     final Menu framerateMenu, boolean isSelected) {
         for (FrameRate frameRate : FrameRate.values()) {
             RadioMenuItem FPSItem = new RadioMenuItem(frameRate.getName());
             FPSItem.setOnAction(ev -> {
-                this.selectedVideo = textVideo;
-                this.selectedFramerate = frameRate;
+                selectTextVideoAndFramerate(textVideo, frameRate);
             });
             if (!textVideo.getPossibleFramerates().contains(frameRate)) {
                 FPSItem.setDisable(true);
             }
             if (frameRate == textVideo.getDefaultFramerate() && isSelected) {
                 FPSItem.setSelected(true);
-                this.selectedVideo = textVideo;
-                this.selectedFramerate = frameRate;
+                selectTextVideoAndFramerate(textVideo, frameRate);
             }
             FPSItem.setToggleGroup(framerateGroup);
             framerateMenu.getItems().addAll(FPSItem);
@@ -118,13 +116,14 @@ public class TextVideoApp extends Application {
                 ev.consume();
             }
         });
-        playButton.setOnAction(e -> videoPanel.play(this.selectedVideo, this.selectedFramerate, slippyTextInput.getText()));
+        playButton.setOnAction(e -> videoPanel.play(this.selectedVideo, slippyTextInput.getText()));
 
         Group inputRoot = new Group();
         GridPane grid = new GridPane();
+        slippyPrompt = new Label("Slippy says:");
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.add(new Label("Slippy says:"), 0, 0);
+        grid.add(slippyPrompt, 0, 0);
         grid.add(slippyTextInput, 1, 0, 1, 2);
         grid.add(playButton, 0, 1);
         inputRoot.getChildren().add(grid);
@@ -132,6 +131,13 @@ public class TextVideoApp extends Application {
         return new Scene(inputRoot, 400, 75);
     }
 
+    private void selectTextVideoAndFramerate(final TextVideo textVideo, final FrameRate frameRate) {
+        this.selectedVideo = textVideo;
+        this.selectedFramerate = frameRate;
+        textVideo.loadMedia(frameRate);
+        videoStage.setBackground(textVideo.getVideoConfig().getScreenColor());
+        slippyPrompt.setText(textVideo.getVideoName() + " says:");
+    }
 
     public static void main(String[] args) {
         launch(args);

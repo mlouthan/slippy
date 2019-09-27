@@ -13,4 +13,6 @@ public interface VideoConfig {
     int getTimeToReadTextMillis();
 
     int getPageTimeDelayMillis();
+
+    String getScreenColor();
 }

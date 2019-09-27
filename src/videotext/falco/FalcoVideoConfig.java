@@ -1,16 +1,16 @@
-package videotext.slippy;
+package videotext.falco;
 
 import videotext.VideoConfig;
 
-public class SlippyVideoConfig implements VideoConfig {
+public class FalcoVideoConfig implements VideoConfig {
 
     private static final int ANIMATION_TIME_DELAY_MILLIS = 50;
     private static final int VIDEO_INTRO_MILLIS = 800;
-    private static final int VIDEO_OUTRO_MILLIS = 1150;
+    private static final int VIDEO_OUTRO_MILLIS = 1650;
     private static final int SPEAKING_ANIMATION_TIME_MILLIS = 900;
     private static final int TIME_TO_READ_TEXT_MILLIS = 1000;
     private static final int PAGE_TIME_TO_READ_MILLIS = 1000;
-    private static final String SCREEN_COLOR = "#2A69FC";
+    private static final String SCREEN_COLOR = "#4CF947";
 
     @Override
     public int getAnimationTimeDelayMillis() {

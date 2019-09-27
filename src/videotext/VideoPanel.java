@@ -28,13 +28,23 @@ public class VideoPanel extends Stage {
                 setX(ev.getScreenX() - xOffset);
                 setY(ev.getScreenY() - yOffset);
         });
-        videoScene.setFill(Paint.valueOf(Config.SCREEN_COLOR));
+        videoScene.setFill(Paint.valueOf(Config.DEFAULT_SCREEN_COLOR));
         setScene(videoScene);
     }
 
-    public void play(final TextVideo textVideo, final FrameRate frameRate, final String textToDisplay) {
+    public void setBackground(final String color) {
+        videoRoot.getScene().setFill(Paint.valueOf(color));
+    }
+
+    public void play(final TextVideo textVideo, final String textToDisplay) {
         videoRoot.getChildren().clear();
-        MediaView mediaView = textVideo.getMediaView(frameRate);
+        MediaView mediaView = textVideo.getMediaView();
+        mediaView.getMediaPlayer().setOnEndOfMedia(new Runnable() {
+            @Override
+            public void run() {
+                videoRoot.getChildren().clear();
+            }
+        });
         Text text = textVideo.getText(textToDisplay);
         videoRoot.getChildren().add(mediaView);
         videoRoot.getChildren().add(text);

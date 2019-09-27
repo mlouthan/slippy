@@ -13,7 +13,9 @@ public interface TextVideo {
 
     String getVideoName();
 
-    MediaView getMediaView(final FrameRate frameRate);
+    void loadMedia(final FrameRate frameRate);
+
+    MediaView getMediaView();
 
     Text getText(final String textToDisplay);
 

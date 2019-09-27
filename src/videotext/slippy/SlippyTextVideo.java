@@ -28,23 +28,15 @@ public class SlippyTextVideo implements TextVideo {
     private static final int TEXT_WIDTH = 680;
     private static final String TEXT_STYLE = "-fx-fill: white;";
 
-    private final MediaView slippy30FPSMediaView;
-    private final MediaView slippy60FPSMediaView;
-    private final Text slippyText;
-    private final Font smallSlippyFont;
-    private final Font largeSlippyFont;
-    private final VideoConfig slippyVideoConfig;
+    private MediaView slippyMediaView;
+    private Text slippyText;
+    private Font slippyFont;
+    private VideoConfig slippyVideoConfig;
 
     private final ResourceLoader resourceLoader;
 
     public SlippyTextVideo() {
         resourceLoader = new ResourceLoader();
-        slippy30FPSMediaView = createSlippyMediaView(SLIPPY_VIDEO_30_FPS);
-        slippy60FPSMediaView = createSlippyMediaView(SLIPPY_VIDEO_60_FPS);
-        slippyText = createSlippyText();
-        smallSlippyFont = createSlippyFont(SMALL_FONT_SIZE);
-        largeSlippyFont = createSlippyFont(LARGE_FONT_SIZE);
-        slippyVideoConfig = new SlippyVideoConfig();
     }
 
     @Override
@@ -63,27 +55,32 @@ public class SlippyTextVideo implements TextVideo {
     }
 
     @Override
-    public MediaView getMediaView(FrameRate frameRate) {
+    public void loadMedia(final FrameRate frameRate) {
         switch (frameRate) {
-            case SIXTYFPS :
-                return slippy60FPSMediaView;
+            case THIRTYFPS:
+                slippyMediaView = createSlippyMediaView(SLIPPY_VIDEO_30_FPS);
+                break;
 
-            case THIRTYFPS :
-                return slippy30FPSMediaView;
+            case SIXTYFPS:
+                slippyMediaView = createSlippyMediaView(SLIPPY_VIDEO_60_FPS);
+                break;
 
-            default :
-                throw new RuntimeException("Slippy only has 60FPS video");
+            default:
+                throw new RuntimeException("Framerate " + frameRate.getName() + " not supported");
         }
+        slippyFont = createSlippyFont(LARGE_FONT_SIZE);
+        slippyText = createSlippyText();
+        slippyText.setFont(slippyFont);
+        slippyVideoConfig = new SlippyVideoConfig();
+    }
+
+    @Override
+    public MediaView getMediaView() {
+        return slippyMediaView;
     }
 
     @Override
     public Text getText(String textToDisplay) {
-        /*if (textToDisplay.length() > LARGE_FONT_CHAR_LIMIT) {
-            slippyText.setFont(smallSlippyFont);
-        } else {
-            slippyText.setFont(largeSlippyFont);
-        }*/
-        slippyText.setFont(largeSlippyFont);
         return slippyText;
     }
 
