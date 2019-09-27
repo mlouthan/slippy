@@ -37,24 +37,56 @@ public class PagedText {
         int lineStart = 0;
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < text.length(); i++) {
-            int nextWhitespace = findNextWhitespace(text, i);
-            if (nextWhitespace - lineStart > lineLength) {
-                sb.append(text.substring(lineStart, i - 1));
+        for (int i = 0; i < text.length();) {
+            int nextWhitespace = findMinPositiveValue(findNextWhitespace(text, i), text.length());
+            int nextNewline = text.indexOf("\n", i);
+            boolean addedNewline = false;
+            String line = "";
+            if (nextWhitespace - i > lineLength) {
+                line = text.substring(lineStart, lineStart + lineLength - 1) + "-\n";
+                lineStart = lineStart + lineLength;
+                i = lineStart;
+                addedNewline = true;
+            } else if (nextNewline > 0 && nextNewline <= nextWhitespace) {
+                line = text.substring(lineStart, nextNewline + 1);
+                lineStart = nextNewline + 1;
+                i = lineStart;
+                addedNewline = true;
+            } else if (nextWhitespace - lineStart > lineLength) {
+                line = text.substring(lineStart, i - 1) + "\n";
                 lineStart = i;
+                i++;
+                addedNewline = true;
+            } else {
+                i = Math.max(nextWhitespace, i+1);
+            }
+
+            if (addedNewline) {
+                sb.append(line);
                 if (lineCount + 1 > linesPerPage) {
                     paginatedText.add(sb.toString());
                     lineCount = 1;
                     sb = new StringBuilder();
                 } else {
                     lineCount++;
-                    sb.append("\n");
                 }
             }
         }
         sb.append(text.substring(lineStart, text.length()));
         paginatedText.add(sb.toString());
         return paginatedText;
+    }
+
+    private int findMinPositiveValue(final int one, final int two) {
+        if (one < 0 && two < 0) {
+            throw new RuntimeException("Can't find min of two negative values");
+        } else if (one < 0) {
+            return two;
+        } else if (two < 0) {
+            return one;
+        } else {
+            return Math.min(one, two);
+        }
     }
 
     public int findNextWhitespace(final String text, final int startIndex) {

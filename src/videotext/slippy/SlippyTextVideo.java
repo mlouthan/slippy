@@ -25,7 +25,7 @@ public class SlippyTextVideo implements TextVideo {
 
     private static final int TEXT_X = 260;
     private static final int TEXT_Y = 90;
-    private static final int TEXT_WIDTH = 660;
+    private static final int TEXT_WIDTH = 680;
     private static final String TEXT_STYLE = "-fx-fill: white;";
 
     private final MediaView slippy30FPSMediaView;
@@ -54,7 +54,7 @@ public class SlippyTextVideo implements TextVideo {
 
     @Override
     public FrameRate getDefaultFramerate() {
-        return FrameRate.SIXTYFPS;
+        return FrameRate.THIRTYFPS;
     }
 
     @Override
