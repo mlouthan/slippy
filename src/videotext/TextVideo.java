@@ -17,7 +17,7 @@ public interface TextVideo {
 
     MediaView getMediaView();
 
-    Text getText(final String textToDisplay);
+    Text getText();
 
     VideoConfig getVideoConfig();
 }

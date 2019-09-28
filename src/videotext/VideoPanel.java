@@ -45,7 +45,7 @@ public class VideoPanel extends Stage {
                 videoRoot.getChildren().clear();
             }
         });
-        Text text = textVideo.getText(textToDisplay);
+        Text text = textVideo.getText();
         videoRoot.getChildren().add(mediaView);
         videoRoot.getChildren().add(text);
         text.setText("");
